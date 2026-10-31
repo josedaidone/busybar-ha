@@ -1,0 +1,30 @@
+launch_app:
+  fields:
+    app:
+      example: Clock
+      selector:
+        text:
+    only_if_idle:
+      default: false
+      selector:
+        boolean:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: busybar_apps
+power_off:
+  fields:
+    respect_timer:
+      default: true
+      selector:
+        boolean:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: busybar_apps
+refresh_apps:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: busybar_apps

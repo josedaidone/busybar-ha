@@ -1,0 +1,67 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BUSY Bar",
+        "description": "The bar must run VeryBUSY firmware with HTTP API access over Wi-Fi turned on.",
+        "data": {"host": "Host", "password": "HTTP API password"},
+        "data_description": {"host": "The bar's IP address or host name.", "password": "The 4-10 digit key set on the bar, if any."}
+      },
+      "reconfigure": {
+        "title": "BUSY Bar",
+        "data": {"host": "Host", "password": "HTTP API password"}
+      }
+    },
+    "error": {
+      "cannot_connect": "Couldn't reach the bar.",
+      "invalid_auth": "The bar refused the password (or its HTTP API over Wi-Fi is off).",
+      "not_verybusy": "The bar answered, but not to the apps API: it needs VeryBUSY firmware."
+    },
+    "abort": {
+      "already_configured": "This bar is already set up.",
+      "reconfigure_successful": "Saved.",
+      "unique_id_mismatch": "That is a different bar."
+    }
+  },
+  "entity": {
+    "select": {
+      "app": {"name": "App"},
+      "auto_app": {"name": "Auto app"}
+    },
+    "sensor": {
+      "running_app": {"name": "Running app"},
+      "timer": {"name": "Timer", "state": {"idle": "Idle", "running": "Running", "paused": "Paused"}}
+    },
+    "button": {
+      "power_off": {"name": "Power off"},
+      "open_auto_app": {"name": "Open auto app"},
+      "refresh_apps": {"name": "Refresh apps"}
+    }
+  },
+  "services": {
+    "launch_app": {
+      "name": "Launch app",
+      "description": "Open an app on the BUSY Bar and start it.",
+      "fields": {
+        "app": {"name": "App", "description": "Name (as in the App select) or runtime:id, e.g. system:clock, fap:/ext/apps/misc/Nixie.fap, js:app.busy.weather. Empty: the Auto app."},
+        "only_if_idle": {"name": "Only if idle", "description": "Only when the bar is off or on the Apps list and no timer runs."},
+        "config_entry_id": {"name": "Bar", "description": "Which bar, when there is more than one."}
+      }
+    },
+    "power_off": {
+      "name": "Power off",
+      "description": "Turn the BUSY Bar off.",
+      "fields": {
+        "respect_timer": {"name": "Respect timer", "description": "Do nothing while a BUSY timer runs (or is paused)."},
+        "config_entry_id": {"name": "Bar", "description": "Which bar, when there is more than one."}
+      }
+    },
+    "refresh_apps": {
+      "name": "Refresh apps",
+      "description": "Read the app list from the bar again.",
+      "fields": {
+        "config_entry_id": {"name": "Bar", "description": "Which bar, when there is more than one."}
+      }
+    }
+  }
+}
