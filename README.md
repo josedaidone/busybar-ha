@@ -16,7 +16,7 @@ It needs **[VeryBUSY](https://code.mccullough.dev/christian/VeryBUSY)** firmware
 | `button.busy_bar_power_off` | Turn the bar off now, timer or not. |
 | `button.busy_bar_refresh_apps` | Read the app list again (it's also re-read every 10 minutes). |
 
-The app list is read from the bar the way [buZyist](https://github.com/josedaidone/buzyist) does it: built-in apps from `/api/apps/system` (the timer left out), `.fap` files under `/ext/apps/*/`, and script apps under `/ext/user_assets/*/` (the ones with `appmeta/` and `scripts/`, debug apps left out).
+The app list is read from the bar: built-in apps from `/api/apps/system` (the timer left out), `.fap` files under `/ext/apps/*/`, and script apps under `/ext/user_assets/*/` (the ones with `appmeta/` and `scripts/`, debug apps left out).
 
 ## Actions
 
