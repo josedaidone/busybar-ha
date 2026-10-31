@@ -2,7 +2,7 @@
 
 Open any app on a [BUSY Bar](https://busy.bar) from Home Assistant: the built-in Clock, installed `.fap` apps, JavaScript and MicroPython apps. Use it from automations ("open the clock when I walk into the garage") or from a dashboard.
 
-It needs **VeryBUSY** firmware: the app API it uses (`/api/apps/launch`, `/api/apps/running`, `/api/apps/system`) isn't in the stock firmware. It talks to the bar over the local HTTP API only. No cloud involved.
+It needs **[VeryBUSY](https://code.mccullough.dev/christian/VeryBUSY)** firmware: the app API it uses (`/api/apps/launch`, `/api/apps/running`, `/api/apps/system`) isn't in the stock firmware. It talks to the bar over the local HTTP API only. No cloud involved.
 
 ## What you get
 
