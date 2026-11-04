@@ -1,9 +1,15 @@
-"""BUSY Bar Apps: open any app on a BUSY Bar (VeryBUSY firmware) from Home Assistant."""
+"""
+BUSY Bar Apps: open any app on a BUSY Bar (VeryBUSY firmware) from Home
+Assistant, and follow buZyist (pomodoros on the bar or the PC) through a
+webhook. An entry is one or the other (CONF_KIND; entries from before
+buZyist are bars).
+"""
 
 from __future__ import annotations
 
 import voluptuous as vol
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady, ServiceValidationError
@@ -12,13 +18,16 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
 
 from .api import BusyBarApi, BusyBarAuthError, BusyBarError
+from .buzyist import BuzyistHub
 from .const import (
     ATTR_APP,
     ATTR_CONFIG_ENTRY_ID,
     ATTR_ONLY_IF_IDLE,
     ATTR_RESPECT_TIMER,
+    CONF_KIND,
     CONF_PASSWORD,
     DOMAIN,
+    KIND_BUZYIST,
     SERVICE_LAUNCH_APP,
     SERVICE_POWER_OFF,
     SERVICE_REFRESH_APPS,
@@ -26,6 +35,7 @@ from .const import (
 from .coordinator import BusyBarConfigEntry, BusyBarCoordinator
 
 PLATFORMS = [Platform.BUTTON, Platform.SELECT, Platform.SENSOR]
+BUZYIST_PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 _ENTRY = {vol.Optional(ATTR_CONFIG_ENTRY_ID): cv.string}
@@ -34,8 +44,12 @@ POWER_OFF_SCHEMA = vol.Schema({vol.Optional(ATTR_RESPECT_TIMER, default=True): c
 REFRESH_SCHEMA = vol.Schema(_ENTRY)
 
 
+def _is_buzyist(entry: ConfigEntry) -> bool:
+    return entry.data.get(CONF_KIND) == KIND_BUZYIST
+
+
 def _coordinator(hass: HomeAssistant, call: ServiceCall) -> BusyBarCoordinator:
-    entries = [e for e in hass.config_entries.async_loaded_entries(DOMAIN)]
+    entries = [e for e in hass.config_entries.async_loaded_entries(DOMAIN) if not _is_buzyist(e)]
     if entry_id := call.data.get(ATTR_CONFIG_ENTRY_ID):
         entries = [e for e in entries if e.entry_id == entry_id]
     if len(entries) != 1:
@@ -68,6 +82,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> bool:
+    if _is_buzyist(entry):
+        hub = BuzyistHub(hass, entry)
+        entry.runtime_data = hub
+        await hub.async_start()
+        await hass.config_entries.async_forward_entry_setups(entry, BUZYIST_PLATFORMS)
+        return True
     api = BusyBarApi(async_get_clientsession(hass), entry.data[CONF_HOST], entry.data.get(CONF_PASSWORD))
     try:
         await api.running()  # VeryBUSY only: stock firmware answers 404
@@ -83,4 +103,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> b
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: BusyBarConfigEntry) -> bool:
+    if _is_buzyist(entry):
+        unloaded = await hass.config_entries.async_unload_platforms(entry, BUZYIST_PLATFORMS)
+        if unloaded:
+            entry.runtime_data.async_stop()
+        return unloaded
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)

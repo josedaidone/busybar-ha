@@ -2,20 +2,39 @@
   "config": {
     "step": {
       "user": {
+        "title": "Add",
+        "menu_options": {"bar": "A BUSY Bar (VeryBUSY firmware)", "buzyist": "buZyist on a PC"}
+      },
+      "bar": {
         "title": "BUSY Bar",
         "description": "The bar must run VeryBUSY firmware with HTTP API access over Wi-Fi turned on.",
         "data": {"host": "Host", "password": "HTTP API password"},
         "data_description": {"host": "The bar's IP address or host name.", "password": "The 4-10 digit key set on the bar, if any."}
       },
+      "buzyist": {
+        "title": "buZyist",
+        "description": "buZyist tells Home Assistant what it is doing: focus, a break, a pause or a call, and on which task and activity. Add one per PC.",
+        "data": {"name": "Name"},
+        "data_description": {"name": "What to call this PC's buZyist, e.g. Desk PC."}
+      },
       "reconfigure": {
         "title": "BUSY Bar",
         "data": {"host": "Host", "password": "HTTP API password"}
+      },
+      "reconfigure_buzyist": {
+        "title": "buZyist",
+        "description": "Paste this URL into buZyist: Settings → Integrations → Home Assistant → Webhook URL.\n\n`{url}`",
+        "data": {"name": "Name", "new_url": "Make a new URL"},
+        "data_description": {"new_url": "The current URL stops working; paste the new one into buZyist."}
       }
     },
     "error": {
       "cannot_connect": "Couldn't reach the bar.",
       "invalid_auth": "The bar refused the password (or its HTTP API over Wi-Fi is off).",
       "not_verybusy": "The bar answered, but not to the apps API: it needs VeryBUSY firmware."
+    },
+    "create_entry": {
+      "buzyist": "Now paste this URL into buZyist (Settings → Integrations → Home Assistant → Webhook URL) and save:\n\n`{url}`\n\nReconfigure on this entry shows it again."
     },
     "abort": {
       "already_configured": "This bar is already set up.",
@@ -30,7 +49,17 @@
     },
     "sensor": {
       "running_app": {"name": "Running app"},
-      "timer": {"name": "Timer", "state": {"idle": "Idle", "running": "Running", "paused": "Paused"}}
+      "timer": {"name": "Timer", "state": {"idle": "Idle", "running": "Running", "paused": "Paused"}},
+      "state": {"name": "State", "state": {"idle": "Idle", "focus": "Focus", "break": "Break", "paused": "Paused", "call": "Call"}},
+      "activity": {"name": "Activity"},
+      "task": {"name": "Task"},
+      "phase_end": {"name": "Phase ends"},
+      "pomodoros_today": {"name": "Pomodoros today"},
+      "focus_today": {"name": "Focus today"}
+    },
+    "binary_sensor": {
+      "focus": {"name": "Focus"},
+      "call": {"name": "Call"}
     },
     "button": {
       "power_off": {"name": "Power off"},
