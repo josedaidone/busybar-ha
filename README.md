@@ -69,6 +69,39 @@ actions:
           - action: busybar_apps.power_off
 ```
 
+## buZyist
+
+buZyist runs pomodoros on Windows, on a BUSY Bar or on the PC itself. Add a **buZyist** entry (one per PC) and it tells Home Assistant what it is doing: focus, a break, a pause or a call, and on which task or activity. It works with no bar, and while the bar is out of reach.
+
+Settings → Devices & services → Add integration → **BUSY Bar Apps** → **buZyist on a PC** → give it a name. Home Assistant shows a webhook URL: paste it into buZyist, Settings → Integrations → Home Assistant → Webhook URL, and save. (Reconfigure on the entry shows the URL again, or makes a new one.) The webhook only takes requests from your local network.
+
+buZyist sends a message when something changes and every minute anyway; a PC not heard from for 3 minutes (asleep, off) goes unavailable, and so does one whose buZyist quit.
+
+| Entity | What it is |
+| --- | --- |
+| `sensor.<name>_state` | `idle`, `focus` (a work phase), `break`, `paused` or `call`. Attributes: `task`, `activity`, `activity_id`, `round`, `rounds`, `phase_minutes`, `source` (`here`, or `bar` for a timer started on the bar), `apps` on a call. |
+| `binary_sensor.<name>_focus` | On during a work phase or a call: what buZyist blocks apps and sites for. |
+| `binary_sensor.<name>_call` | On during a call (an app holding the microphone or camera). |
+| `sensor.<name>_activity` | The session's activity (`Email`, `Call`, ...). |
+| `sensor.<name>_task` | The Todoist task or the name typed in. |
+| `sensor.<name>_phase_ends` | When the work phase or break ends (unknown while paused or on a call). |
+| `sensor.<name>_pomodoros_today`, `sensor.<name>_focus_today` | Today's pomodoros and focus minutes. |
+
+Events, for automations:
+
+- `buzyist_state_changed`: `from`, `to`, `task`, `activity`, plus `entry_id`, `name`, `device`.
+- `buzyist_session_ended`: `reason` (`finished`, `stopped`, `replaced`), `kind` (`pomodoro` or `call`), `task`, `activity`, `pomodoros`, `minutes`, `at`.
+
+```yaml
+alias: Do not disturb while focusing
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.buzyist_focus
+actions:
+  - action: "light.turn_{{ 'on' if trigger.to_state.state == 'on' else 'off' }}"
+    target: { entity_id: light.office_door_sign }
+```
+
 ## Installation
 
 HACS → Custom repositories → `https://github.com/josedaidone/busybar-ha` (Integration) → install **BUSY Bar Apps** → restart Home Assistant → Settings → Devices & services → Add integration → **BUSY Bar Apps**: enter the bar's IP and its HTTP API password.

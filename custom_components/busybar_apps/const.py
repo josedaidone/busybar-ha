@@ -33,3 +33,18 @@ ATTR_APP = "app"
 ATTR_ONLY_IF_IDLE = "only_if_idle"
 ATTR_RESPECT_TIMER = "respect_timer"
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
+
+# A buZyist entry (one per PC): buZyist POSTs what it is doing to this
+# entry's webhook, as JSON (buzyist/home_assistant.py in the buZyist repo).
+CONF_KIND = "kind"
+KIND_BAR = "bar"  # entries from before buZyist have no kind: bars
+KIND_BUZYIST = "buzyist"
+CONF_WEBHOOK_ID = "webhook_id"
+
+BUZYIST_PROTOCOL = 1  # the newest payload version ("v") understood
+# buZyist sends every minute anyway: unheard from for this long, its entities go unavailable.
+BUZYIST_STALE_S = 180
+BUZYIST_STATES = ["idle", "focus", "break", "paused", "call"]
+
+EVENT_BUZYIST_STATE = "buzyist_state_changed"
+EVENT_BUZYIST_ENDED = "buzyist_session_ended"

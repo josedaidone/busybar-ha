@@ -111,6 +111,8 @@ async def setup(hass: HomeAssistant) -> MockConfigEntry:
 
 async def test_config_flow(hass: HomeAssistant) -> None:
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+    assert result["type"] is FlowResultType.MENU
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"next_step_id": "bar"})
     assert result["type"] is FlowResultType.FORM
     FakeBar.password_ok = False
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"host": "1.2.3.4", "password": "1"})
@@ -119,6 +121,7 @@ async def test_config_flow(hass: HomeAssistant) -> None:
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"host": "1.2.3.4", "password": "1234"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["result"].unique_id == "SERIAL1"
+    assert result["result"].data["kind"] == "bar"
 
 
 async def test_entities(hass: HomeAssistant) -> None:
@@ -208,3 +211,13 @@ async def test_unknown_app(hass: HomeAssistant) -> None:
     await setup(hass)
     with pytest.raises(Exception, match="Unknown BUSY Bar app"):
         await hass.services.async_call(DOMAIN, "launch_app", {"app": "Nope"}, blocking=True)
+
+
+async def test_a_buzyist_entry_doesnt_count_as_a_bar(hass: HomeAssistant) -> None:
+    buzyist = MockConfigEntry(domain=DOMAIN, title="buZyist", data={"kind": "buzyist", "webhook_id": "hook"})
+    buzyist.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(buzyist.entry_id)
+    await setup(hass)
+    FakeBar.state["running"] = MENU
+    resp = await hass.services.async_call(DOMAIN, "launch_app", {"app": "Clock"}, blocking=True, return_response=True)
+    assert resp["opened"] is True
